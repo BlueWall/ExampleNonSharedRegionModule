@@ -1,11 +1,11 @@
 <?xml version="1.0" ?>
 <!--
    ****[ NOTES ]**** 
-   Our dll name comes from the name="ExampleModule" here in the Project.
-   We make the path from our base directory to the directory our *cs files
-   are placed in. 
+   Our dll name comes from the name="ExampleNonSharedModule" here in the 
+   Project. We make the path from our base directory to the directory our 
+   *cs files are placed in. 
 -->
-<Project frameworkVersion="v4_0" name="ExampleModule" path="addon-modules/ExampleRegionModule/Src" type="Library">
+<Project frameworkVersion="v4_0" name="ExampleNonSharedModule" path="addon-modules/ExampleNonSharedRegionModule/Src" type="Library">
      <!-- ****[ NOTE ]****
 
         Our configuration definitions.

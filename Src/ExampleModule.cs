@@ -65,7 +65,7 @@ namespace ModExampleModule
     // We need this for our module loader plugin. it uses mono-addins to locate
     // and manage extensions througout OpenSimulator.
     [Extension(Path = "/OpenSim/RegionModules", NodeName = "RegionModule")]
-    public class ExampleModule : IExampleModule, ISharedRegionModule, ICommandableModule
+    public class ExampleModule : IExampleModule, INonSharedRegionModule, ICommandableModule
     {
         #region Fields
         // This is our logger. use m_log.InfoFormat("[ExampleModule]: Logging Something {0}", m_name);
@@ -75,9 +75,8 @@ namespace ModExampleModule
         // Then we can have our other methods refer back to it when we want to decide to do some function
         private bool m_enabled = false;
 
-        // This is a shared module and will service all Scene in the instance. We keep a copy o fthem here
-        // In this case is a Dictionary indexed by the RegionID. Could be a List, as well.treeActiveCommand
-        private Dictionary<string, Scene> m_Scenes = new Dictionary<string, Scene> ();
+        // This is a non shared module and will contain only one scene per region
+        private Scene m_Scene;
 
         // We will want to keep a copy of our ConfigSource. It will be passed to us on initialization, bet we
         // will want to use it in several places.
@@ -102,26 +101,6 @@ namespace ModExampleModule
         // here as a convenience { see Name below }
         public string m_name = "ExampleModule";
         #endregion properties
-
-        #region ISharedRegionModule implementation
-        public void PostInitialise ()
-        {
-            // We just have this to show the sequence
-            m_log.InfoFormat("[ExampleModule]: Running {0} Sequence {1} : Enabled {2}", "PostInitialize", (m_InitCount++).ToString(), m_enabled.ToString());
-
-            // We have to check to see if we're enabled
-            // Return if not enabled
-            if (!m_enabled)
-                return;
-
-            // We implement ISharedRegionModule, so we have access to every region in the instance
-            // When doing this, we must take extra care to select the region we want for operations.
-            foreach(Scene s in m_Scenes.Values)
-                m_log.InfoFormat("[ExampleModule]: Region: {0} PostInitialize",s.RegionInfo.RegionName);
-
-        }
-
-        #endregion
 
         #region ICommander
         // This is needed if we want to issue commands on the console
@@ -216,62 +195,45 @@ namespace ModExampleModule
             if (!m_enabled)
                 return;
 
-            // Here we copy our Scene to our Dictionary
-            m_log.InfoFormat ("[ExampleModule]: Adding {0}", scene.RegionInfo.RegionName);
-            if (m_enabled == true)
-            {
-                if (m_Scenes.ContainsKey (scene.RegionInfo.RegionName)) {
-                    lock (m_Scenes)
-                    {
-                        m_Scenes[scene.RegionInfo.RegionName] = scene;
-                    }
-                } else {
-                    lock (m_Scenes)
-                    {
-                        m_Scenes.Add (scene.RegionInfo.RegionName, scene);
-                    }
-                }
-
-                // Hook up events
-                // This will fire when a client enters the region
-                // It will fire for all regions in the instance
-                // because this is a shared region module
-                scene.EventManager.OnNewClient += OnNewClient;
-                // This will fire when the agent becomes a root agent
-                scene.EventManager.OnMakeRootAgent += HandleOnMakeRootAgent;
-                // This will fire when we type our command into the console
-                scene.EventManager.OnPluginConsole += HandleSceneEventManagerOnPluginConsole;
+            // Hook up events
+            // This will fire when a client enters the region
+            // It will fire for all regions in the instance
+            // because this is a shared region module
+            scene.EventManager.OnNewClient += OnNewClient;
+            // This will fire when the agent becomes a root agent
+            scene.EventManager.OnMakeRootAgent += HandleOnMakeRootAgent;
+            // This will fire when we type our command into the console
+            scene.EventManager.OnPluginConsole += HandleSceneEventManagerOnPluginConsole;
 
 
-                // Take ownership of the IExampleModule service
-                // This is optional for external modules.
-                // But, for custom modules that are designed to replace basic ones,
-                // you will register the interface with the module loader so this one
-                // is loaded instead of the basic module.
-                // If your module intends to be replaceable, then return this interface
-                // type (See RepleableInterface property below)
-                // If you module is replaceing, then register the interface here
-                // and return null with the ReplaceableInterface property
-                scene.RegisterModuleInterface<IExampleModule>(this);
+            // Take ownership of the IExampleModule service
+            // This is optional for external modules.
+            // But, for custom modules that are designed to replace basic ones,
+            // you will register the interface with the module loader so this one
+            // is loaded instead of the basic module.
+            // If your module intends to be replaceable, then return this interface
+            // type (See RepleableInterface property below)
+            // If you module is replaceing, then register the interface here
+            // and return null with the ReplaceableInterface property
+            scene.RegisterModuleInterface<IExampleModule>(this);
 
 
-                // The following are optional and is part of the required components to create
-                // console commands to be handled by our module
-                //
-                // Add a command to set the message in the console
-                // See the handler 'HandleSetMessage' below
-                Command set_message = new Command("set-message", CommandIntentions.COMMAND_NON_HAZARDOUS, HandleSetMessage, "Set ExampleModule message");
-                set_message.AddArgument("message", "the message", "String");
-                m_commander.RegisterCommand("set-message", set_message);
+            // The following are optional and is part of the required components to create
+            // console commands to be handled by our module
+            //
+            // Add a command to set the message in the console
+            // See the handler 'HandleSetMessage' below
+            Command set_message = new Command("set-message", CommandIntentions.COMMAND_NON_HAZARDOUS, HandleSetMessage, "Set ExampleModule message");
+            set_message.AddArgument("message", "the message", "String");
+            m_commander.RegisterCommand("set-message", set_message);
 
-                // Add a command to get the message in the console
-                // See the handler 'HandleGetMessage' below
-                Command get_message = new Command("get-message", CommandIntentions.COMMAND_NON_HAZARDOUS, HandleGetMessage, "Get ExampleModule message");
-                m_commander.RegisterCommand("get-message",get_message);
+            // Add a command to get the message in the console
+            // See the handler 'HandleGetMessage' below
+            Command get_message = new Command("get-message", CommandIntentions.COMMAND_NON_HAZARDOUS, HandleGetMessage, "Get ExampleModule message");
+            m_commander.RegisterCommand("get-message",get_message);
 
-                // Register our command handler
-                scene.RegisterModuleCommander(m_commander);
-            }
+            // Register our command handler
+            scene.RegisterModuleCommander(m_commander);
         }
 
         public void RemoveRegion (Scene scene)
@@ -290,14 +252,6 @@ namespace ModExampleModule
             scene.EventManager.OnMakeRootAgent -= HandleOnMakeRootAgent;
             scene.EventManager.OnPluginConsole -= HandleSceneEventManagerOnPluginConsole;
 
-            // We can remove this Scene from out Dictionary - it may have others
-            // if we run more than one region in the instnce
-            if (m_Scenes.ContainsKey (scene.RegionInfo.RegionName)) {
-                lock (m_Scenes)
-                {
-                    m_Scenes.Remove (scene.RegionInfo.RegionName);
-                }
-            }
             scene.UnregisterModuleInterface<IExampleModule>(this);
         }
 
