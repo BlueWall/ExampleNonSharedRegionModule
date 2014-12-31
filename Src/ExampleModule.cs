@@ -116,7 +116,7 @@ namespace ModExampleModule
         public void Initialise (IConfigSource source)
         {
             // We just have this to show the sequence
-            m_log.InfoFormat("[ExampleModule]: Running {0} Sequence {1} : Enabled {2}", "Initialize", (m_InitCount++).ToString(), m_enabled.ToString());
+            m_log.InfoFormat("[<<< ExampleModule >>>]: Running *{0}* Sequence {1} : Enabled {2}", "Initialize", (m_InitCount++).ToString(), m_enabled.ToString());
 
             // We want to save our config source to be able to get it at our convenience
             m_config = source;
@@ -147,7 +147,7 @@ namespace ModExampleModule
             if (cnf == null)
             {
                 m_enabled = false;
-                m_log.Info ("[ExampleModule]: No Configuration Found, Disabled");
+                m_log.Info ("[<<< ExampleModule >>>]: No Configuration Found, Disabled");
                 return;
             }
 
@@ -157,7 +157,7 @@ namespace ModExampleModule
 
             if (m_enabled == false)
             {
-                m_log.InfoFormat ("[ExampleModule]: Module was disabled, {0}", m_ExampleMessage);
+                m_log.InfoFormat ("[<<< ExampleModule >>>]: Module was disabled, {0}", m_ExampleMessage);
                 return;
             }
 
@@ -165,7 +165,7 @@ namespace ModExampleModule
             m_ExampleMessage = cnf.GetString ("ExampleMessage", "Default Message");
             if (m_ExampleMessage != "")
             {
-                m_log.InfoFormat ("[ExampleModule]: Module was enabled, {0}", m_ExampleMessage);
+                m_log.InfoFormat ("[<<< ExampleModule >>>]: Module was enabled, {0}", m_ExampleMessage);
                 m_enabled = true;
             }
         }
@@ -173,7 +173,7 @@ namespace ModExampleModule
         public void Close ()
         {
             // We just have this to show the sequence
-            m_log.InfoFormat("[ExampleModule]: Running {0} Sequence {1} : Enabled {2}", "Close", (m_InitCount++).ToString(), m_enabled.ToString());
+            m_log.InfoFormat("[<<< ExampleModule >>>]: Running *{0}* Sequence {1} : Enabled {2}", "Close", (m_InitCount++).ToString(), m_enabled.ToString());
 
 
             // We have to check to see if we're enabled
@@ -187,8 +187,8 @@ namespace ModExampleModule
         {
             // We just have this to show the sequence
             // remove from your real module
-            m_log.InfoFormat("[ExampleModule]: Running {0} Sequence {1} : Enabled {2}", "AddRegion {3}",
-                             (m_InitCount++).ToString(), m_enabled.ToString(), scene.RegionInfo.RegionName);
+            m_log.InfoFormat("[<<< ExampleModule >>>]: Running *{0}* Sequence {1} : Enabled {2}", "AddRegion",
+                (m_InitCount++).ToString(), m_enabled.ToString(), scene.RegionInfo.RegionName);
 
             // We have to check to see if we're enabled
             // Return if not enabled
@@ -239,8 +239,8 @@ namespace ModExampleModule
         public void RemoveRegion (Scene scene)
         {
             // We just have this to show the sequence
-            m_log.InfoFormat("[ExampleModule]: Running {0} Sequence {1} : Enabled {2}", "RemoveRegion {3}", 
-                             (m_InitCount++).ToString(), m_enabled.ToString(), scene.RegionInfo.RegionName);
+            m_log.InfoFormat("[<<< ExampleModule >>>]: Running *{0}* Sequence {1} : Enabled {2}", "RemoveRegion", 
+                (m_InitCount++).ToString(), m_enabled.ToString(), scene.RegionInfo.RegionName);
 
             // We have to check to see if we're enabled
             // Return if not enabled
@@ -261,8 +261,8 @@ namespace ModExampleModule
             // See below: we must test to see if we are enabled and return immediately
             // instead of continuing
             // Remove from your real module
-            m_log.InfoFormat("[ExampleModule]: Running {0} Sequence {1} : Enabled {2}", "RegionLoaded {3}",
-                             (m_InitCount++).ToString(), m_enabled.ToString(), scene.RegionInfo.RegionName);
+            m_log.InfoFormat("[<<< ExampleModule >>>]: Running *{0}* Sequence {1} : Enabled {2}", "RegionLoaded",
+                (m_InitCount++).ToString(), m_enabled.ToString(), scene.RegionInfo.RegionName);
 
             // We have to check to see if we're enabled
             // Return if not enabled
@@ -277,7 +277,7 @@ namespace ModExampleModule
                 // We just have this to show the sequence:
                 // Not a good practice to run code in a property so remove it when you make your modules
                 // You will see that this is called for each region that the instance loads
-                m_log.InfoFormat("[ExampleModule]: Running {0} Sequence {1} : Enabled {2}", "Name", (m_InitCount++).ToString(), m_enabled.ToString());
+                m_log.InfoFormat("[<<< ExampleModule >>>]: Running *{0}* Sequence {1} : Enabled {2}", "Name", (m_InitCount++).ToString(), m_enabled.ToString());
                 return m_name;
             }
         }
@@ -288,7 +288,7 @@ namespace ModExampleModule
             {
                 // We just have this to show the sequence: Not a good practice to run code in a property
                 // Remove from your real module
-                m_log.InfoFormat("[ExampleModule]: Running {0} Sequence {1} : Enabled {2}", "ReplaceableInterface", (m_InitCount++).ToString(), m_enabled.ToString());
+                m_log.InfoFormat("[<<< ExampleModule >>>]: Running *{0}* Sequence {1} : Enabled {2}", "ReplaceableInterface", (m_InitCount++).ToString(), m_enabled.ToString());
 
                 // If we want to load over another module with a custom one,
                 // we return null. If we are writing one that we will allow to be replaced,
@@ -310,7 +310,7 @@ namespace ModExampleModule
             
             // Use our convenience method below to get the client name, then send them a modal alert message
             // we use our m_ExampleConfig for the message - we can set that in the ini
-            m_log.InfoFormat("[ExampleModule]: NewClient {0} {1} @ {2}", 
+            m_log.InfoFormat("[<<< ExampleModule >>>]: *NewClient* {0} {1} @ {2}", 
                              agent_type, client.Name, client.Scene.RegionInfo.RegionName);
         }
         
@@ -323,7 +323,7 @@ namespace ModExampleModule
             // we use our m_ExampleConfig for the message - we can set that in the ini
             client.SendAgentAlertMessage(String.Format("Hello! {0}! {1}", GetClientName(client), m_ExampleMessage), true);
 
-            m_log.InfoFormat("[ExampleModule]: RootAgent {0} @ {1}", client.Name, client.RemoteEndPoint.ToString());
+            m_log.InfoFormat("[<<< ExampleModule >>>]: *RootAgent* {0} @ {1}", client.Name, client.RemoteEndPoint.ToString());
             
         }
 
@@ -378,7 +378,7 @@ namespace ModExampleModule
         // Constructor
         public ExampleModule ()
         {
-            m_log.InfoFormat("[ExampleModule]: Running {0} Sequence {1} : Enabled {2}", "Constructor", (m_InitCount++).ToString(), m_enabled.ToString());
+            m_log.InfoFormat("[<<< ExampleModule >>>]: Running *{0}* Sequence {1} : Enabled {2}", "Constructor", (m_InitCount++).ToString(), m_enabled.ToString());
             
         }
 
